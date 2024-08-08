@@ -1,4 +1,5 @@
 import { pool } from '../config/db.js'
+import { hash } from 'bcrypt'
 
 class User {
   static async all () {
@@ -17,8 +18,9 @@ class User {
   }
 
   static async create ({ fName, mName, lName, username, email, password }) {
+    const encriptado = await hash(password, 10)
     const campos = ['f_name', 'username', 'email', 'password']
-    const values = [fName, username, email, password]
+    const values = [fName, username, email, encriptado]
 
     if (mName) {
       campos.push('m_name')
@@ -36,6 +38,11 @@ class User {
     const nuevoUsuario = await pool.execute(`INSERT INTO users(${camposString}) VALUES (${placeholders})`, values)
 
     return nuevoUsuario
+  }
+
+  static async getByUsernameOrEmail (valor) {
+    const usuario = await pool.execute('SELECT * FROM users WHERE email = ? OR username = ?', [valor, valor])
+    return usuario[0]
   }
 }
 

@@ -14,7 +14,9 @@ export const login = async (req, res) => {
     if (!esValido) return res.status(400).json({ message: 'Credenciales inválidas' })
 
     const token = jwt.sign({ usuarioId: usuario[0].user_id }, SECRET_KEY, { expiresIn: '1h' })
-    res.json({ token })
+
+    delete usuario[0].password
+    res.json({ token, user: usuario[0] })
   } catch (error) {
     res.status(500).json({ message: error.message })
   }
